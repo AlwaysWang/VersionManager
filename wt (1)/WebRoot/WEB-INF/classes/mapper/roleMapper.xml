@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wt.basedao.roleDao">
+<resultMap type="com.wt.bean.Role" id="RoleMapper">
+<id column="roleid" property="roleId"/>
+<result column="rolename" property="roleName"/>
+<result column="state" property="state"/>
+<result column="remark" property="remark"/>
+<result column="istdate" property="istDate"/>
+<collection property="moduleList" ofType="com.wt.bean.Module">
+<id column="mdid" property="mdId"/>
+<result column="mdname" property="mdName"/>
+<result column="state" property="state"/>
+<result column="ismenu" property="isMenu"/>
+<result column="parent" property="parent"/>
+<result column="url" property="url"/>
+<result column="istdate" property="istDate"/>
+<result column="update" property="uptDate"/>
+</collection>
+</resultMap>
+<select id="getUserInfoListByUserName" parameterType="java.lang.String"
+resultType="com.wt.bean.Role">
+select * from userinfo where username=#{userName}
+</select>
+<select id="getUserByUserName" parameterType="java.lang.String" 
+resultType="com.wt.bean.Role">
+select * from userinfo where username=#{userName}
+</select>
+<select id="getRoleList" resultType="com.wt.bean.Role">
+select * from role
+</select>
+<insert id="insertRole" parameterType="com.wt.bean.Role">
+  insert into role(roleid,rolename,remark,istdate) values(role_seq.nextval,#{roleName},#{remark},to_date(#{nowDate},'YYYY-MM-DD HH24:MI:SS'))
+  </insert>
+ <select id="getNewRole" resultType="com.wt.bean.Role">
+ select * from role where roleid=(select max(roleid) from role)
+ </select>
+ <select id="getModuleListByRoleId" resultMap="RoleMapper">
+ select mr.roleid,mr.mdid,r.roleid,r.rolename,m.mdid,m.mdname from module m,rolemodule mr,role r where 
+ r.roleid=mr.roleid and mr.mdid=m.mdid and r.roleid=#{roleId}
+ </select>
+ <select id="getRoleByRoleName" resultMap="RoleMapper">
+ select * from role r where r.rolename=#{roleName}
+ </select> 
+ <select id="getRoleByRoleId" resultMap="RoleMapper">
+ select * from role r where r.roleid=#{roleId} 
+ </select>
+</mapper>

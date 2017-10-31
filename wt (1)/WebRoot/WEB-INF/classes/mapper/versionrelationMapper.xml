@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wt.basedao.versionrelationDao">
+<resultMap type="com.wt.bean.VersionRelation" id="versionrelationMapper">
+<id column="id" property="id"></id>
+<result column="vid" property="vid"/>
+<result column="mdid" property="mdid"/>
+</resultMap>
+<insert id="insertVersionRelation" parameterType="com.wt.bean.VersionRelation">
+insert into versionrelation(id,vid,mdid,istdate)values(versionrelation_seq.nextval,#{vid},#{mdid},to_date(#{nowDate},'YYYY-MM-DD HH24:MI:SS'))
+</insert>
+<select id="getversionrelationByVId" resultMap="versionrelationMapper">
+select * from versionrelation vr where vr.vid=#{vId}
+</select>
+<delete id="deleteVersionRelationByVId" parameterType="long">
+delete from versionrelation vr where vr.vid=#{vId} </delete>
+<delete id="deleteVersionRelationByFunId" parameterType="long">
+delete from versionrelation vr where vr.mdid=#{funId}
+</delete>
+<select id="getversionrelationByFId" resultMap="versionrelationMapper">
+select * from versionrelation vr where vr.mdid=#{funId}
+</select>
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wt.basedao.moduleDao">
+<resultMap type="com.wt.bean.Module" id="ModuleResultMap">
+<id column="mdid" property="mdId"/>
+<result column="mdname" property="mdName"/>
+<result column="state" property="state"/>
+<result column="ismenu" property="isMenu"/>
+<result column="parent" property="parent"/>
+<result column="url" property="url"/>
+<result column="istdate" property="istDate"/>
+<result column="update" property="uptDate"/>
+<collection property="roleList" ofType="com.wt.bean.Role">
+<id column="roleid" property="roleId"/>
+<result column="rolename" property="roleName"/>
+<result column="state" property="state"/>
+<result column="remark" property="remark"/>
+<result column="istdate" property="istDate"/>
+</collection>
+</resultMap>
+<select id="getModuleList" resultType="com.wt.bean.Module">
+select * from module
+</select> 
+<select id="getModuleListByUserType" resultMap="ModuleResultMap" parameterType="String">
+select m.mdname,m.mdid,r.roleid,r.remark,rm.roleid,rm.mdid from module m,rolemodule rm,role r where m.mdid=rm.mdid and r.roleid=rm.roleid and r.remark=#{userType}
+</select>
+
+</mapper>

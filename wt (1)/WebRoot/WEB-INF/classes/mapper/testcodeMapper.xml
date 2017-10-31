@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wt.basedao.testcodeDao">
+<resultMap type="com.wt.bean.TestCode" id="TestCodeResultMap">
+<id column="code" property="code"/>
+<result column="testname" property="testName"/>
+<result column="istdate" property="istDate"/>
+<result column="uptdate" property="uptDate"/>
+<result column="typeid" property="typeId"/>
+
+<!-- 表达与测试类型表多对一的关系 -->
+<association property="testType" javaType="com.wt.bean.TestType">
+<id column="typeid" property="typeId"/>
+<result column="istdate" property="istDate"/>
+<result column="remark" property="remark"/>
+<result column="typename" property="remark"/>
+<result column="uptdate" property="uptDate"/>
+</association>
+</resultMap>
+<select id="getTestCodeList" resultType="com.wt.bean.TestCode">
+select * from testcode 
+</select>
+<select id="getTestCodeListByTypeName" resultMap="TestCodeResultMap" parameterType="String">
+select c.testname,c.code from testcode c,testtype t  where t.typeid=c.typeid and t.typename=#{testTypeName}
+</select>
+<insert id="insertTestCode" parameterType="com.wt.bean.TestCode">
+insert into testcode(code,testname,istdate,typeid,remark) values(testcode_seq.nextval,#{testName,jdbcType=VARCHAR},to_date(#{nowDate},'YYYY-MM-DD HH24:MI:SS'),#{typeId,jdbcType=BIGINT},#{remark})
+</insert>
+<select id="getTestCodeById" parameterType="long" resultType="com.wt.bean.TestCode">
+select * from testcode where code=#{testcode}
+</select>
+</mapper>

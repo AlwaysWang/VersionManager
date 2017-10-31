@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wt.basedao.userinfoDao">
+<select id="getUser" parameterType="int"
+ resultType="com.wt.bean.user">
+ select * from users where id=#{id}
+  </select>
+  <select id="getUserInfoList" resultType="com.wt.bean.UserInfo">
+  select * from userinfo order by id desc
+  </select>
+  <insert id="insertUserInfo" parameterType="com.wt.bean.UserInfo">
+  insert into userinfo(id,username,loginname,loginpass,istdate) values(userinfo_seq.nextval,#{userName},#{loginName},#{loginpass},to_date(#{nowDate},'YYYY-MM-DD HH24:MI:SS'))
+  </insert>
+  <select id="selectUserInfo" parameterType="java.lang.String" resultType="com.wt.bean.UserInfo">
+  select * from userinfo 
+  
+  
+  where loginname=#{userName} order by id desc
+  </select>
+  <select id="getUserInfoByName" parameterType="java.lang.String" resultType="com.wt.bean.UserInfo">
+  select u.* from userinfo u  
+  <where>
+  <if test="userName!=null and userName!=''">
+  u.username LIKE concat(concat('%',#{userName}),'%')
+  </if>
+  </where>
+   order by id desc
+  </select>
+<update id="updatePass" parameterType="String">
+update  userinfo  set loginpass=#{loginPass} where loginname=#{loginName}
+</update>
+ <select id="getUserByLoginName"  parameterType="String" resultType="com.wt.bean.UserInfo">
+ select u.* from userinfo u where u.loginname=#{loginName}
+ </select>
+ <select id="getUserInfoById" parameterType="long" resultType="com.wt.bean.UserInfo">
+ select * from userinfo where id=#{id}
+ </select>
+ <update id="updateUser" parameterType="com.wt.bean.UserInfo">
+ update userinfo set username=#{userName},loginname=#{loginName},loginpass=#{loginPass} where id=#{id}
+ </update>
+ <select id="getUserListByCriteria" resultType="com.wt.bean.UserInfo">
+ select * from (select rownum rid,id,username,loginname,loginpass,istdate from
+   (select u.id,u.username,u.loginname,u.loginpass,u.istdate from userinfo u  order by id desc))
+ where rid between #{StartPos} and #{EndPos} 
+ </select>
+ <select id="getSomeUserListByCriteria" resultType="com.wt.bean.UserInfo">
+ select * from (select rownum rid,id,username,loginname,loginpass,istdate from
+   (select u.id,u.username,u.loginname,u.loginpass,u.istdate from userinfo u 
+   <where>
+   <if test="userName!=null and userName!=''">
+   u.username  LIKE concat(concat('%',#{userName}),'%') </if>
+   </where> 
+    order by id desc))
+ where rid between #{StartPos} and #{EndPos} 
+ </select>
+  </mapper>

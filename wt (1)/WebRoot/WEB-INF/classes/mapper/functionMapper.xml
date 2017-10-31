@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wt.basedao.functionDao">
+<resultMap type="com.wt.bean.FunctionModule" id="FunsResultMap">
+<id column="fid"   property="id"/>
+<result column="name" property="name"/>
+<result column="debugfile" property="debugFile"/>
+<result column="istdate" property="istdate"/>
+<result column="funremark" property="remark"/>
+<result column="testcode" property="testCode"/>
+<result column="typeid" property="typeid"/>
+<result column="uptdate"  property="uptdate"/>
+<result column="typename" property="typeName"/>
+<association property="testcode" javaType="com.wt.bean.TestCode" >
+<id column="code" property="code"/>
+<result column="testname" property="testName"/>
+<result column="istdate" property="istDate"/>
+<result column="uptdate" property="uptDate"/>
+<result column="typeid" property="typeId"/>
+</association>
+<!--表达与测试类型表多对一的关系  -->
+<association property="testType" javaType="com.wt.bean.TestType">
+<id column="typeid" property="typeId"/>
+<result column="istdate" property="istDate"/>
+<result column="remark" property="remark"/>
+<result column="typename" property="typeName"/>
+<result column="uptdate" property="uptDate"/>
+</association>
+<!-- 表达与版本表一对多的关系 -->
+<collection property="installversionList" ofType="com.wt.bean.InstallVersion">
+<id column="vid" property="id"/>
+<result  column="isddate" property="istDate"/>
+<result column="mdid" property="mdId"/>
+<result  column="opername" property="operName"/>
+<result column="remark" property="remark"/>
+<result column="savepath" property="savePath"/>
+<result  column="vercode" property="verCode"/>
+</collection>
+</resultMap>
+<!-- 表达与程序表多对多的关系 -->
+<resultMap type="com.wt.bean.FunctionModule" id="FunctionMapper">
+<id column="id"   property="id"/>
+<result column="name" property="name"/>
+<result column="debugfile" property="debugFile"/>
+<result column="istdate" property="istdate"/>
+<result column="remark" property="remark"/>
+<result column="testcode" property="testCode"/>
+<result column="typeid" property="typeid"/>
+<result column="uptdate"  property="uptdate"/>
+</resultMap>
+<!-- 表达功能表与程序表多对多的关系 -->
+<resultMap type="com.wt.bean.FunctionModule" id="FuntionProgramMapper" extends="FunctionMapper">
+<collection property="programList" ofType="com.wt.bean.Program">
+<id column="pid" property="id"></id>
+<result column="pgname"  property="pgName"/>
+<result column="pgedition"  property="pgEdition"/>
+<result column="remark"  property="remark"/>
+<result column="storagepath"  property="storagePath"/>
+<result column="progdisc" property="progdisc"/>
+<result column="languagetype" property="languageType"/>
+<result column="systemtype" property="systemType"/>
+</collection>
+</resultMap>
+<select id="getFunctionModuleByNameAndType"  parameterType="java.lang.String"
+resultType="com.wt.bean.FunctionModule">
+select f.fid,f.name,t.typename from functionmodule f,testtype t where f.typeid=t.typeid and f.name=#{name} and t.typename=#{typename} 
+</select>
+<select id="getFunctionModuleByName"  parameterType="java.lang.String"
+ resultType="com.wt.bean.FunctionModule">
+ select * from functionmodule where name=#{name}
+  </select>
+  <select id="getFunctionModuleById"  
+resultMap="FunsResultMap">
+ select * from functionmodule where fid=#{id}
+  </select>
+  <select id="getAllFunList" resultMap="FunsResultMap">
+  select f.* ,t.*,c.* from functionmodule f,testtype t,testcode c  where f.typeid=t.typeid and t.typeid=c.typeid and f.testcode=c.code order by fid desc
+  </select>
+  <delete id="deleteFunctionModule" parameterType="int">  
+        delete from functionmodule where fid=#{id}  
+    </delete>  
+    <update id="updateFunctionModule" parameterType="int">  
+        update functionmodule set name=#{name} where fid=#{id}  
+    </update>  
+      <insert id="insertFunction"  parameterType="com.wt.bean.FunctionModule">
+       insert into functionmodule(fid,name,typeid,debugfile,testcode,funremark,istdate,typename)values(functionmodule_seq.nextval,#{name,jdbcType=VARCHAR},#{typeid},#{debugFile,jdbcType=VARCHAR},#{testCode},#{remark},to_date(#{nowDate},'YYYY-MM-DD HH24:MI:SS'),#{typeName}) 
+      </insert>
+  <select id="getSomeFunctionList" resultMap="FunsResultMap"> 
+  select f.*,t.*,c.* from functionmodule f,testtype t,testcode c where f.typeid=t.typeid and t.typeid=c.typeid and f.testcode=c.code
+ <if test="funName!=null and funName!=''">
+ and f.name LIKE concat(concat('%',#{funName}),'%') 
+ </if>
+ <if test="typeName!=null and typeName!='' ">
+ and c.testname=#{typeName}
+ </if>
+<if test="endDate!=null and endDate!=''">
+ and f.istdate <![CDATA[<=]]>to_date(#{endDate},'YYYY-MM-DD HH24:MI:SS') 
+</if>
+ <if test="startDate!=null and startDate!=''">
+ and f.istdate <![CDATA[>=]]> to_date(#{startDate},'YYYY-MM-DD')
+ </if>
+ order by f.fid desc
+  </select>
+  <select id="getFunction" resultMap="FunsResultMap" parameterType="java.lang.Long">
+   select f.* ,t.*,c.* from functionmodule f,testtype t,testcode c where f.typeid=t.typeid and t.typeid=c.typeid and f.testcode=c.code and  f.fid=#{Id}
+   </select>
+   <update id="updateFunction" parameterType="com.wt.bean.FunctionModule" >
+   update functionmodule set name=#{funName},typeName=#{typeName},funremark=#{remark},debugfile=#{debugFile},testCode=#{code},typeid=#{typeId},uptdate=to_date(#{nowDate},'YYYY-MM-DD HH24:MI:SS') where fid=#{Id}
+   </update>
+   <select id="getFunctionListByCriteria" resultMap="FunsResultMap">
+select * from (select rownum rid,fid,name,debugfile,typename,code,testname,istdate  from
+   (select f.fid,f.name,f.debugfile,f.typeid,f.istdate,t.typeid,t.typename,c.typeid,c.code,c.testname from functionmodule f,testcode c,testtype t where f.typeid=t.typeid and t.typeid=c.typeid and f.testcode=c.code order by f.fid desc))
+ where rid between #{StartPos} and #{EndPos}  
+</select>
+<select id="getSomeFunctionListByCriteria" resultMap="FunsResultMap">
+select * from (select rownum rid,fid,name,debugfile,typename,code,testname,istdate from
+   (select f.fid,f.name,f.debugfile,f.typeid,f.istdate,t.typeid,t.typename,c.typeid,c.code,c.testname from functionmodule f,testcode c,testtype t where f.typeid=t.typeid and t.typeid=c.typeid and f.testcode=c.code
+  <if test="funName!=null and funName!=''">
+ and f.name LIKE concat(concat('%',#{funName}),'%') 
+ </if>
+ <if test="typeName!=null and typeName!='' ">
+ and c.testname=#{typeName}
+ </if>
+<if test="endDate!=null and endDate!=''">
+ and f.istdate <![CDATA[<=]]>to_date(#{endDate},'YYYY-MM-DD HH24:MI:SS') 
+</if>
+ <if test="startDate!=null and startDate!=''">
+ and f.istdate <![CDATA[>=]]> to_date(#{startDate},'YYYY-MM-DD')
+ </if>
+   order by f.fid desc))
+ where rid between #{StartPos} and #{EndPos} 
+</select>	
+<select id="getFunctionByMaxId" resultMap="FunsResultMap">
+select fid,name,funremark,typeid,testcode,istdate from functionmodule where fid=(select max(fid) from functionmodule)
+</select>
+<!-- 根据功能的id查询功能对应的程序 -->
+<delete id="deleteFunctionById" parameterType="long">
+delete from functionmodule where fid=#{funId}
+</delete>
+
+  </mapper>                                                                                                                                                                                                         
+  

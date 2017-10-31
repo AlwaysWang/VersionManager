@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wt.basedao.newsDao">
+<select id="getNewsList" 
+ resultType="com.wt.bean.News">
+ select * from news order by istdate  desc
+  </select>
+  <select id="getNewsListByDate" resultType="com.wt.bean.News">
+  select n.* from news n  
+<where>
+<if test="startDate!=null and startDate!=''">
+ n.istdate <![CDATA[>=]]> to_date(#{startDate},'YYYY-MM-DD HH24:MI:SS')
+</if>
+<if test="endDate!=null and endDate!=''">
+and n.istdate <![CDATA[<=]]>to_date(#{endDate},'YYYY-MM-DD HH24:MI:SS')
+</if>
+<if test="newstitle!=null and newstitle!=''">
+and n.title  LIKE concat(concat('%',#{newstitle}),'%')  
+</if>
+</where>
+order by istdate  desc
+   </select>
+  <select id="getNewsById" parameterType="java.lang.Long"
+  resultType="com.wt.bean.News">
+  <!--  select n.id,n.title,n.content,n.remark,to_char(n.istdate,'yyyy-mm-dd')from news n where n.id=#{id}-->
+  select n.id,n.title,n.content,n.remark,n.istdate from news n where n.id=#{id}
+  </select>
+  <update id="updateNews" parameterType="com.wt.bean.News">
+  update news set title=#{newsTitle},content=#{newsContent},istdate=to_date(#{nowDate},'YYYY-MM-DD HH24:MI:SS') where id=#{id}
+  </update>
+  <insert id="insertNews"  parameterType="com.wt.bean.News" >
+  insert into news(id,title,content,istdate)values(news_seq.nextval,#{title},#{content},to_date(#{nowDate},'YYYY-MM-DD HH24:MI:SS')) 
+  </insert>
+  <select id="getNewsListByCriteria" resultType="com.wt.bean.News">
+ select * from (select rownum rid,id,title,content,remark,istdate from
+   (select n.id,n.title,n.content,n.remark,n.istdate from news n order by istdate  desc))
+ where rid between #{StartPos} and #{EndPos} 
+  </select>
+  <select id="getSomeNewsListByCriteria" resultType="com.wt.bean.News">
+ select * from (select rownum rid,id,title,content,remark,istdate from
+   (select n.id,n.title,n.content,n.remark,n.istdate from news n
+   <where>
+<if test="startDate!=null and startDate!=''">
+ n.istdate <![CDATA[>=]]> to_date(#{startDate},'YYYY-MM-DD')
+</if>
+<if test="endDate!=null and endDate!=''">
+and n.istdate <![CDATA[<=]]>to_date(#{endDate},'YYYY-MM-DD HH24:MI:SS')
+</if>
+<if test="newstitle!=null and newstitle!=''">
+and n.title  LIKE concat(concat('%',#{newstitle}),'%')  
+</if>
+</where>
+ order by istdate  desc))
+ where rid between #{StartPos} and #{EndPos} 
+  </select>
+  <select id="getNewsListByMaxDate" resultType="com.wt.bean.News">
+  select * from news n where n.istdate=(select max(istdate) from news) 
+  </select>
+  <select id="getNewestNews" resultType="com.wt.bean.News">
+  select * from news n where n.istdate=(select max(istdate) from news) 
+  </select>
+  <delete id="deleteNewsById" parameterType="long">
+  delete from news where id=#{newsId}
+  </delete>
+  </mapper>

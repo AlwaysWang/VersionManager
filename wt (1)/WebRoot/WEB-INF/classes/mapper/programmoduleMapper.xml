@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wt.basedao.programmoduleDao">
+<resultMap type="com.wt.bean.ProgramModule" id="ProgramModuleMapper">
+<id column="id" property="id"/>
+<result column="pgid" property="pdId"/>
+<result column="mdid" property="mdId"/>
+<result column="remark" property="remark"/>
+<result column="istdate" property="istDate"/>
+</resultMap>
+<insert id="insertProgramModule" parameterType="com.wt.bean.ProgramModule">
+insert into programmodule(id,pgid,mdid,istdate) values(programmodule_seq.nextval,#{pdId},#{mdId},to_date(#{nowDate},'YYYY-MM-DD HH24:MI:SS'))
+</insert>
+<select id="getProgramModuleListByMdId" resultMap="ProgramModuleMapper">
+select * from programmodule where mdid=#{mdId}
+</select>
+<update id="programmoduleDao" parameterType="com.wt.bean.ProgramModule">
+update programmodule set pgid=#{pgId} where mdid=#{funId}
+</update>
+<delete id="deleteProgramModuleByFunId" parameterType="long">
+delete from programmodule where mdid=#{funId}
+</delete>
+<delete id="deleteProgramModuleByPgId" parameterType="long">
+delete from programmodule where pgid=#{pgId}
+</delete>
+<select id="getProgramModuleListByPgId" resultMap="ProgramModuleMapper">
+select * from programmodule where pgid=#{pgId}
+</select>
+</mapper>
